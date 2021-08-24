@@ -4,11 +4,26 @@ var path = require('path')
 
 var mainWindow = null
 
-app.on('ready', function () {
+const toggle = () => {
+  function show() {
+    nativeExt.makePanel(mainWindow)
+    mainWindow.showInactive()
+    nativeExt.makeKeyWindow(mainWindow)
+    setTimeout(hide, 3000)
+  }
+
+  function hide() {
+    mainWindow.hide()
+    setTimeout(show, 3000)
+  }
+  show()
+}
+
+const createPopupWindow = () => {
   mainWindow = new BrowserWindow({
     width: 0,
     height: 0,
-    fullscreenable: false,
+    fullscreenable: true,
     paintWhenInitiallyHidden: true,
     show: false,
     frame: false,
@@ -25,28 +40,11 @@ app.on('ready', function () {
   })
   mainWindow.setSize(200, 200)
   mainWindow.center()
-
   mainWindow.loadURL('file://' + __dirname + '/index.html')
-  mainWindow.on('ready-to-show', function () {
-    var stealFocus = false
-    function show() {
-      if (stealFocus) {
-        nativeExt.makeKeyWindow(mainWindow)
-        mainWindow.show()
-      } else {
-        nativeExt.makePanel(mainWindow)
-        mainWindow.showInactive()
-        nativeExt.makeKeyWindow(mainWindow)
-      }
+}
 
-      // stealFocus = !stealFocus
-      setTimeout(hide, 3000)
-    }
-    function hide() {
-      mainWindow.hide()
-      setTimeout(show, 3000)
-    }
-    show()
-  })
+app.on('ready', function () {
+  createPopupWindow()
+  mainWindow.on('ready-to-show', () => toggle())
 })
 

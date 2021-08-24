@@ -10,7 +10,17 @@
 
 @implementation PROPanel
 - (NSWindowStyleMask)styleMask {
-  return NSWindowStyleMaskTexturedBackground | NSWindowStyleMaskResizable | NSWindowStyleMaskFullSizeContentView | NSWindowStyleMaskNonactivatingPanel;
+  // return NSWindowStyleMaskTexturedBackground | NSWindowStyleMaskResizable | NSWindowStyleMaskFullSizeContentView | NSWindowStyleMaskNonactivatingPanel;
+  return NSWindowStyleMaskTitled | NSWindowStyleMaskNonactivatingPanel;
+}
+- (NSWindowCollectionBehavior)collectionBehavior {
+  return NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorFullScreenAuxiliary;
+}
+- (BOOL)isFloatingPanel {
+  return YES;
+}
+- (NSWindowLevel)level {
+  return NSMainMenuWindowLevel;
 }
 - (BOOL)canBecomeKeyWindow {
   return YES;
@@ -67,19 +77,12 @@ NAN_METHOD(MakePanel) {
   NSWindow *nswindow = [mainContentView window];
   NSLog(@"stylemask = %ld", mainContentView.window.styleMask);
 
-  // Convert the NSWindow class to NSPanel
+  // Convert the NSWindow class to PROPanel
   object_setClass(mainContentView.window, [PROPanel class]);
   
   NSLog(@"class of main window after = %@", object_getClass(mainContentView.window));
   NSLog(@"stylemask after = %ld", mainContentView.window.styleMask);
 
-  // Ensure that the window is a "non activating panel" which means it won't activate the application
-  // when it becomes key.
-
-  // Ensure that the window can display over the top of fullscreen apps
-  [mainContentView.window setCollectionBehavior: NSWindowCollectionBehaviorTransient | NSWindowCollectionBehaviorMoveToActiveSpace | NSWindowCollectionBehaviorFullScreenAuxiliary ];
-  [mainContentView.window setLevel:NSFloatingWindowLevel];
-  // [mainContentView.window setFloatingPanel:YES];
   return info.GetReturnValue().Set(true);
 }
 
@@ -108,8 +111,8 @@ NAN_METHOD(MakeWindow) {
   char* buffer = node::Buffer::Data(handleBuffer);
   NSView* mainContentView = *reinterpret_cast<NSView**>(buffer);
 
-    if (!mainContentView)
-      return info.GetReturnValue().Set(false);
+  if (!mainContentView)
+    return info.GetReturnValue().Set(false);
 
   NSWindow* newWindow = mainContentView.window;
 
