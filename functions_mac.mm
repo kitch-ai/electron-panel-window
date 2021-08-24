@@ -10,7 +10,7 @@
 
 @implementation PROPanel
 - (NSWindowStyleMask)styleMask {
-  return NSWindowStyleMaskNonactivatingPanel;
+  return NSWindowStyleMaskTexturedBackground | NSWindowStyleMaskResizable | NSWindowStyleMaskFullSizeContentView | NSWindowStyleMaskNonactivatingPanel;
 }
 - (BOOL)canBecomeKeyWindow {
   return YES;
@@ -65,16 +65,11 @@ NAN_METHOD(MakePanel) {
   NSLog(@"class of main window before = %@", object_getClass(mainContentView.window));
 
   NSWindow *nswindow = [mainContentView window];
-  nswindow.titlebarAppearsTransparent = true;
-  nswindow.titleVisibility = (NSWindowTitleVisibility)1; // hidden
-  
   NSLog(@"stylemask = %ld", mainContentView.window.styleMask);
 
   // Convert the NSWindow class to NSPanel
   object_setClass(mainContentView.window, [PROPanel class]);
   
-  // nswindow.styleMask = NSWindowStyleMaskNonactivatingPanel;
-
   NSLog(@"class of main window after = %@", object_getClass(mainContentView.window));
   NSLog(@"stylemask after = %ld", mainContentView.window.styleMask);
 
